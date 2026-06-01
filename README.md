@@ -34,9 +34,6 @@ GoKAnI AI is a powerful, user-friendly AI image generation application built wit
 ### Installation
 
 1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/yourusername/famosofluxo.git
-    cd famosofluxo
     ```
 
 2.  **Install dependencies:**
