@@ -386,13 +386,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="w-full flex justify-center items-center py-4">
-        <img 
-          src="/header svg gokani.svg" 
-          alt="GoKAnI Header" 
-          className="h-24 w-auto object-contain"
-        />
-      </div>
       <div className="container mx-auto py-10 px-[10px] space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Prompt & Model Settings */}
@@ -453,9 +446,6 @@ export default function Home() {
                   label="Prompt" 
                   tooltip="Prompt for generated image. If you include the `trigger_word` used in the training process you are more likely to activate the trained object, style, or concept in the resulting image." 
                 />
-                <span className="text-sm text-muted-foreground">
-                  Trigger word: <span className="font-mono font-bold text-primary">FAMOSOFLUXO</span>
-                </span>
               </div>
               <Textarea 
                 id="prompt" 
@@ -501,30 +491,8 @@ export default function Home() {
             <CardTitle>Image Uploads</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 flex-1">
-            <ImageUploadInput 
-              id="image_url"  
-              label="Image (Img2Img)" 
-              tooltip="Input image for image to image or inpainting mode. If provided, aspect_ratio, width, and height inputs are ignored." 
-              value={image}
-              onChange={(val, name) => {
-                setImage(val)
-                if (name) setImageFileName(name)
-              }}
-            />
-
-            <ImageUploadInput 
-              id="mask_url" 
-              label="Mask (Inpainting)" 
-              tooltip="Image mask for image inpainting mode. If provided, aspect_ratio, width, and height inputs are ignored." 
-              value={mask}
-              onChange={(val, name) => {
-                setMask(val)
-                if (name) setMaskFileName(name)
-              }}
-            />
-
             <div className="space-y-2">
-              <LabelWithTooltip 
+              <LabelWithTooltip
                 label={`Prompt Strength (${promptStrength})`}
                 tooltip="Prompt strength when using img2img. 1.0 corresponds to full destruction of information in image" 
               />
@@ -536,9 +504,6 @@ export default function Home() {
               />
             </div>
           </CardContent>
-          <CardFooter className="justify-center pb-6">
-            <p className="text-xs font-bold text-center text-muted-foreground">DO NOT TOUCH SETTINGS UNLESS YOU KNOW WHAT YOU ARE DOING</p>
-          </CardFooter>
         </Card>
       </div>
 
