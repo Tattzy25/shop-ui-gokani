@@ -390,55 +390,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Prompt & Model Settings */}
         <Card className="shadow-[0px_0px_7px_3px_rgba(28,156,240,0.8)] h-full">
-          <CardHeader>
-            <CardTitle>Prompt & Model</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 flex-1">
-            <div className="space-y-2">
-              <LabelWithTooltip 
-                id="replicate_model" 
-                label="Replicate Model" 
-                tooltip="Select the specific Replicate model to use for generation." 
-              />
-              <Select 
-                value={replicateModelId} 
-                onValueChange={(val: string) => {
-                  setReplicateModelId(val)
-                  if (val === "custom" && !customModelId) {
-                    setCustomModelId("black-forest-labs/flux-dev")
-                  }
-                }}
-              >
-                <SelectTrigger id="replicate_model">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AVAILABLE_MODELS.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.name}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="custom">Other (Custom ID)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {replicateModelId === "custom" && (
-              <div className="space-y-2">
-                <LabelWithTooltip 
-                  id="custom_model_id" 
-                  label="Custom Model ID" 
-                  tooltip="Enter the full Replicate model ID (e.g., owner/model:version)" 
-                />
-                <Input 
-                  id="custom_model_id" 
-                  placeholder="owner/model:version" 
-                  value={customModelId}
-                  onChange={(e) => setCustomModelId(e.target.value)}
-                />
-              </div>
-            )}
-
+          <CardContent className="space-y-4 flex-1 pt-[5px]">
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <LabelWithTooltip 
@@ -472,6 +424,8 @@ export default function Home() {
               />
             </div>
 
+            <div aria-hidden="true" style={{ height: "20px" }} />
+
             <ImageUploadInput
               id="image_url"
               label="Image (Img2Img)"
@@ -482,114 +436,82 @@ export default function Home() {
                 if (name) setImageFileName(name)
               }}
             />
+
+            <div aria-hidden="true" style={{ height: "20px" }} />
+
+            <div className="flex justify-center">
+              <Button
+                className="h-auto p-[3px]"
+                style={{ fontFamily: "var(--font-rock-salt)", fontSize: "24px" }}
+              >
+                Generate Now
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Card 4: Image Uploads */}
         <Card className="shadow-[0px_0px_7px_3px_rgba(28,156,240,0.8)] h-full">
-          <CardHeader>
-            <CardTitle>Image Uploads</CardTitle>
-          </CardHeader>
           <CardContent className="space-y-4 flex-1">
-            <div className="space-y-2">
-              <LabelWithTooltip
-                label={`Prompt Strength (${promptStrength})`}
-                tooltip="Prompt strength when using img2img. 1.0 corresponds to full destruction of information in image" 
-              />
-              <Slider 
-                value={[promptStrength]} 
-                onValueChange={(vals: number[]) => setPromptStrength(vals[0])} 
-                max={1} 
-                step={0.05} 
-              />
+            <div className="flex flex-col items-center pb-12">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center space-y-4 py-12">
+                  <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+                  <p className="text-muted-foreground">Creating your masterpiece...</p>
+                </div>
+              ) : (
+                <>
+                  {generatedImages.length > 1 && (
+                    <Button onClick={handleDownloadAll} variant="secondary" className="mb-8">
+                      <Download className="mr-2 h-4 w-4" />
+                      Download All ({generatedImages.length})
+                    </Button>
+                  )}
+                  <div className="flex flex-wrap justify-center items-center gap-8">
+                    {generatedImages.map((src, i) => (
+                      <div key={i} className="flex flex-col gap-2">
+                        <div
+                          className="relative rounded-lg flex items-center justify-center w-full max-w-md shadow-sm cursor-pointer transition-colors"
+                          style={getAspectRatioStyle(aspectRatio)}
+                          onClick={() => {
+                            setLightboxIndex(i)
+                            setLightboxOpen(true)
+                          }}
+                        >
+                          <img
+                            src={src}
+                            alt={`Generated image ${i + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="flex gap-2 w-full max-w-md">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleDownload(src, i)}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => handleShare(src, i)}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      <div className="flex justify-center">
-        <Button 
-          size="lg" 
-          className={cn(
-            "w-full max-w-md text-2xl py-6 h-auto shadow-[0px_0px_7px_3px_rgba(28,156,240,0.8)] transition-transform active:scale-95",
-            isLoading && "opacity-50 cursor-not-allowed active:scale-100"
-          )}
-          onClick={handleGenerate}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-              GENERATING...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-6 w-6" />
-              GENERATE
-              <Sparkles className="ml-2 h-6 w-6" />
-            </>
-          )}
-        </Button>
-      </div>
-
-      <Separator />
-      
-      <div className="flex flex-col items-center pb-12">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center space-y-4 py-12">
-            <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
-            <p className="text-muted-foreground">Creating your masterpiece...</p>
-          </div>
-        ) : (
-          <>
-            {generatedImages.length > 1 && (
-              <Button onClick={handleDownloadAll} variant="secondary" className="mb-8">
-                <Download className="mr-2 h-4 w-4" />
-                Download All ({generatedImages.length})
-              </Button>
-            )}
-            <div className="flex flex-wrap justify-center items-center gap-8">
-              {generatedImages.map((src, i) => (
-                <div key={i} className="flex flex-col gap-2">
-                  <div 
-                    className="relative rounded-lg flex items-center justify-center w-full max-w-md shadow-sm cursor-pointer transition-colors"
-                    style={getAspectRatioStyle(aspectRatio)}
-                    onClick={() => {
-                      setLightboxIndex(i)
-                      setLightboxOpen(true)
-                    }}
-                  >
-                    <img 
-                      src={src} 
-                      alt={`Generated image ${i + 1}`} 
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="flex gap-2 w-full max-w-md">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleDownload(src, i)}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleShare(src, i)}
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
       </div>
 
       <Lightbox
