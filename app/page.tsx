@@ -2,23 +2,17 @@
 
 import { useState, useRef } from "react"
 import { cn } from "@/lib/utils"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Info, ImageIcon, Loader2, Download, Upload, Link as LinkIcon, X, Sparkles, Share2 } from "lucide-react"
+import { Info, Loader2, Download, Upload, Sparkles, Share2 } from "lucide-react"
 import Lightbox from "yet-another-react-lightbox"
 import "yet-another-react-lightbox/styles.css"
 import { toast } from "sonner"
-import { generateImage } from "./actions"
 import { AVAILABLE_MODELS } from "@/lib/models"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import {
   Dialog,
   DialogContent,
@@ -197,10 +191,12 @@ export default function Home() {
   const [outputFormat, setOutputFormat] = useState("webp")
   const [megapixels, setMegapixels] = useState("1")
   const [outputQuality, setOutputQuality] = useState(80)
+
   const [image, setImage] = useState("")
   const [imageFileName, setImageFileName] = useState("")
   const [mask, setMask] = useState("")
   const [maskFileName, setMaskFileName] = useState("")
+
   const [promptStrength, setPromptStrength] = useState(0.8)
 
   const getDimensions = () => {
@@ -231,19 +227,12 @@ export default function Home() {
     const finalModelId = replicateModelId === "custom" ? customModelId : replicateModelId
 
     const formData = new FormData()
-    formData.append("replicate_model_id", finalModelId)
     formData.append("prompt", prompt)
-    formData.append("model", model)
-    formData.append("aspect_ratio", aspectRatio)
     formData.append("output_format", outputFormat)
     formData.append("num_outputs", numOutputs.toString())
-    formData.append("width", width.toString())
-    formData.append("height", height.toString())
-    formData.append("megapixels", megapixels)
     formData.append("output_quality", outputQuality.toString())
     if (image) formData.append("image", image)
-    if (mask) formData.append("mask", mask)
-    formData.append("prompt_strength", promptStrength.toString())
+
 
     const result = await generateImage(formData)
 
